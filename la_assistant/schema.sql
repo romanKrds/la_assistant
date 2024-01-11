@@ -6,7 +6,8 @@ CREATE TABLE user
     id        INTEGER PRIMARY KEY AUTOINCREMENT,
     username  TEXT UNIQUE NOT NULL,
     password  TEXT        NOT NULL,
-    thread_id TEXT
+    thread_id TEXT,
+    token TEXT
 );
 
 CREATE TABLE mistake
