@@ -33,6 +33,16 @@ def login_required(view):
 
     return wrapped_view
 
+def async_login_required(view):
+    @functools.wraps(view)
+    async def wrapped_view(**kwargs):
+        if g.user is None:
+            abort(401, 'Unauthorized')
+
+        return await view(**kwargs)
+
+    return wrapped_view
+
 
 @bp.post('/register')
 def register():
