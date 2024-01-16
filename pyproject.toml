@@ -1,7 +1,7 @@
 [project]
 name = "la_assistant"
 version = "0.0.1"
-description = "The language acquisition assistant app"
+description = "Foreign language acquisition assistant app"
 dependencies = [
     "flask",
 ]
