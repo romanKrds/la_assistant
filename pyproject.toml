@@ -2,9 +2,14 @@
 name = "la_assistant"
 version = "0.0.1"
 description = "Foreign language acquisition assistant app"
-dependencies = [
-    "flask",
+authors = [
+    {name = "Roman Kordas", email = "roman.kordas7@gmail.com"}
 ]
+
+[dependencies]
+flask = "3.0"
+python-dotenv = "1.0.0"
+openai = "1.7.0"
 
 [build-system]
 requires = ["flit_core<4"]
