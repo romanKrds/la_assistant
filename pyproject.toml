@@ -11,6 +11,16 @@ flask = "3.0"
 python-dotenv = "1.0.0"
 openai = "1.7.0"
 
+[project.optional-dependencies]
+test = ["pytest", "pytest-mock"]
+
 [build-system]
 requires = ["flit_core<4"]
 build-backend = "flit_core.buildapi"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.coverage.run]
+branch = true
+source = ["la_assistant"]
