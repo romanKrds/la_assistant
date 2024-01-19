@@ -1,6 +1,6 @@
 [project]
 name = "la_assistant"
-version = "0.0.1"
+version = "0.0.2"
 description = "Foreign language acquisition assistant app"
 authors = [
     {name = "Roman Kordas", email = "roman.kordas7@gmail.com"}
