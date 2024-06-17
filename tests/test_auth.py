@@ -37,6 +37,8 @@ def test_login(client, auth):
 
 
 @pytest.mark.parametrize(('username', 'password', 'message'), (
+    ('', 'test', 'Username is required.'),
+    ('a', '', 'Password is required.'),
     ('a', 'test', 'Incorrect username.'),
     ('test', 'a', 'Incorrect password.'),
 ))

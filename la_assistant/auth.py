@@ -13,7 +13,7 @@ bp = Blueprint('auth', __name__, url_prefix='/auth')
 
 @bp.before_app_request
 def load_logged_in_user():
-    token = session.get('token') or request.args.get('token')
+    token = session.get('token') or request.headers.get('Authorization')
 
     if token is None:
         g.user = None
@@ -33,6 +33,7 @@ def login_required(view):
 
     return wrapped_view
 
+
 def async_login_required(view):
     @functools.wraps(view)
     async def wrapped_view(**kwargs):
@@ -44,18 +45,22 @@ def async_login_required(view):
     return wrapped_view
 
 
+def validate_user_input(data):
+    username = data.get('username')
+    password = data.get('password')
+    if not username:
+        return 'Username is required.'
+    elif not password:
+        return 'Password is required.'
+
+
 @bp.post('/register')
 def register():
     data = request.get_json()
     username = data.get('username')
     password = data.get('password')
     db = get_db()
-    error = None
-
-    if not username:
-        error = 'Username is required.'
-    elif not password:
-        error = 'Password is required.'
+    error = validate_user_input(data)
 
     if error is None:
         try:
@@ -77,26 +82,31 @@ def login():
     data = request.get_json()
     username = data.get('username')
     password = data.get('password')
-    db = get_db()
-    error = None
-    user = db.execute(
-        'SELECT * FROM user WHERE username = ?', (username,)
-    ).fetchone()
 
-    if user is None:
-        error = 'Incorrect username.'
-    elif not check_password_hash(user['password'], password):
-        error = 'Incorrect password.'
+    error = validate_user_input(data)
 
     if error is None:
-        token = get_token(user['password'])
-        db.execute(
-            'UPDATE user SET token = ? WHERE username = ?', (token, username)
-        )
-        db.commit()
-        session.clear()
-        session['token'] = token
-        return {"token": token}, 200
+        db = get_db()
+        # error = None
+        user = db.execute(
+            'SELECT * FROM user WHERE username = ?', (username,)
+        ).fetchone()
+
+        if user is None:
+            error = 'Incorrect username.'
+        elif not check_password_hash(user['password'], password):
+            error = 'Incorrect password.'
+
+        if error is None:
+            token = get_token(user['password'])
+            db.execute(
+                'UPDATE user SET token = ? WHERE username = ?', (token, username)
+            )
+            db.commit()
+            session.clear()
+            session['token'] = token
+
+            return {"token": token}, 200
 
     return {"error": error}, 400
 
