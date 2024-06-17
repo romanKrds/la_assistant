@@ -38,4 +38,7 @@ def create_app(test_config=None):
     from . import user
     app.register_blueprint(user.bp)
 
+    from . import vocabulary
+    app.register_blueprint(vocabulary.bp)
+
     return app
