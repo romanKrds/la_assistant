@@ -1,6 +1,7 @@
 import os
 from flask import Flask
 from dotenv import load_dotenv
+from flask_cors import CORS
 
 load_dotenv()  # take environment variables from .env.
 
@@ -11,6 +12,9 @@ def create_app(test_config=None):
         SECRET_KEY='dev',
         DATABASE=os.path.join(app.instance_path, 'la_assistant.sqlite')
     )
+
+    if os.getenv('IS_DEV_MODE'):
+        CORS(app, supports_credentials=True)
 
     if test_config is None:
         app.config.from_pyfile('config.py', silent=True)
