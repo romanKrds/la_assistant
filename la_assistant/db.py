@@ -1,4 +1,6 @@
+import os
 import sqlite3
+import csv
 
 import click
 from flask import current_app, g
@@ -17,6 +19,14 @@ def init_db():
 
     with current_app.open_resource('schema.sql') as f:
         db.executescript(f.read().decode('utf8'))
+
+    # populate vocabulary table with predefined data
+    with open(os.path.join(os.path.dirname(__file__), 'word-list-de.csv'), 'r', newline='') as file:
+        csv_reader = csv.reader(file, delimiter='\t')
+
+        for line in csv_reader:
+            db.execute("INSERT INTO vocabulary (language, word_1, word_2, sentence) VALUES (?, ?, ?, ?)", ('de', *line))
+            db.commit()
 
 
 @click.command('init-db')
