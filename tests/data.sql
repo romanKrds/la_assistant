@@ -8,7 +8,7 @@ VALUES
   (1, 'en', 'I live on Earth', 'There is no "the" article before the Earth word', 'I live on the Earth', 0, 0, 0),
   (1, 'en', 'I live on Mars', 'There is no "the" article before the Mars word', 'I live on the Mars', 5, 3, 1);
 
-INSERT INTO user_vocabulary(user_id, vocabulary_id, times_showed)
+INSERT INTO user_vocabulary(user_id, vocabulary_id, times_showed, times_reviewed)
 VALUES
-    (1, 1, 5),
-    (1, 2, 0);
+    (1, 1, 5, 5),
+    (1, 2, 0, 0);

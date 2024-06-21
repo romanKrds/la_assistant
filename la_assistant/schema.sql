@@ -42,6 +42,7 @@ CREATE TABLE user_vocabulary
     vocabulary_id INTEGER NOT NULL,
     user_id       INTEGER NOT NULL,
     times_showed  INTEGER NOT NULL,
+    times_reviewed  INTEGER NOT NULL,
     FOREIGN KEY (user_id) REFERENCES user (id),
     FOREIGN KEY (vocabulary_id) REFERENCES vocabulary (id)
 );
