@@ -5,8 +5,8 @@ from flask import (
     Blueprint, g, abort, request, session
 )
 from werkzeug.security import check_password_hash, generate_password_hash
-
-from la_assistant.db import get_db
+from la_assistant.models import User
+from la_assistant.extensions import db
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 
@@ -18,9 +18,7 @@ def load_logged_in_user():
     if token is None:
         g.user = None
     else:
-        g.user = get_db().execute(
-            'SELECT * FROM user WHERE token = ?', (token,)
-        ).fetchone()
+        g.user = User.query.filter_by(token=token).first()
 
 
 def login_required(view):
@@ -59,19 +57,18 @@ def register():
     data = request.get_json()
     username = data.get('username')
     password = data.get('password')
-    db = get_db()
     error = validate_user_input(data)
 
     if error is None:
-        try:
-            db.execute(
-                "INSERT INTO user (username, password) VALUES (?, ?)",
-                (username, generate_password_hash(password))
-            )
-            db.commit()
-        except db.IntegrityError:
-            error = f'User {username} is already registered.'
+        existing_user = User.query.filter_by(username=username).first()
+
+        if existing_user is not None:
+            error = f"User {username} is already registered."
         else:
+            new_user = User(username=username, password=generate_password_hash(password))
+            db.session.add(new_user)
+            db.session.commit()
+
             return {}, 200
 
     return {"error": error}, 400
@@ -82,27 +79,20 @@ def login():
     data = request.get_json()
     username = data.get('username')
     password = data.get('password')
-
     error = validate_user_input(data)
 
     if error is None:
-        db = get_db()
-        # error = None
-        user = db.execute(
-            'SELECT * FROM user WHERE username = ?', (username,)
-        ).fetchone()
+        user = User.query.filter_by(username=username).first()
 
         if user is None:
             error = 'Incorrect username.'
-        elif not check_password_hash(user['password'], password):
+        elif not check_password_hash(user.password, password):
             error = 'Incorrect password.'
 
         if error is None:
-            token = get_token(user['password'])
-            db.execute(
-                'UPDATE user SET token = ? WHERE username = ?', (token, username)
-            )
-            db.commit()
+            token = get_token(user.password)
+            user.token = token
+            db.session.commit()
             session.clear()
             session['token'] = token
 
@@ -114,11 +104,9 @@ def login():
 @bp.route('/logout')
 @login_required
 def logout():
-    db = get_db()
-    db.execute(
-        'UPDATE user SET token = NULL WHERE username = ?', (g.user['username'],)
-    )
-    db.commit()
+    user = User.query.filter_by(username=g.user.username).first()
+    user.token = None
+    db.session.commit()
     session.clear()
     return {}, 200
 

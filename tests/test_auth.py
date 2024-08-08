@@ -1,16 +1,18 @@
 import pytest
 from flask import g, session
-from la_assistant.db import get_db
+from la_assistant.models import User
 
 
 def test_register(client, app):
-    response = client.post('/auth/register', json={'username': 'a', 'password': 'a'})
+    username = "a"
+    response = client.post('/auth/register', json={'username': username, 'password': 'a'})
     assert response.status_code == 200
 
     with app.app_context():
-        assert get_db().execute(
-            "SELECT * FROM user WHERE username = 'a'",
-        ).fetchone() is not None
+        assert (
+            User.query.filter_by(username=username).first()
+            is not None
+        )
 
 
 @pytest.mark.parametrize(('username', 'password', 'message'), (
@@ -30,10 +32,10 @@ def test_login(client, auth):
     auth.login()
 
     with client:
-        client.get('/')
-        assert g.user['username'] == 'test'
+        client.get('/auth/login')
+        assert g.user.username == 'test'
         assert session['token'] is not None
-        assert session['token'] == g.user['token']
+        assert session['token'] == g.user.token
 
 
 @pytest.mark.parametrize(('username', 'password', 'message'), (

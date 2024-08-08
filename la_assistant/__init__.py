@@ -1,19 +1,27 @@
 import os
 from flask import Flask
+
 from dotenv import load_dotenv
 from flask_cors import CORS
 
-load_dotenv()  # take environment variables from .env.
+
+load_dotenv('.env.mysql.env')  # take environment variables from .env.
+
+host = os.getenv("MYSQL_HOST")
+username = os.getenv("MYSQL_USER")
+password = os.getenv("MYSQL_PASSWORD")
+database_name = os.getenv("MYSQL_DATABASE")
 
 
 def create_app(test_config=None):
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_mapping(
         SECRET_KEY='dev',
-        DATABASE=os.path.join(app.instance_path, 'la_assistant.sqlite')
+        SQLALCHEMY_DATABASE_URI=f"mysql+pymysql://{username}:{password}@{host}/{database_name}",
+        SQLALCHEMY_TRACK_MODIFICATIONS=False
     )
 
-    if os.getenv('IS_DEV_MODE'):
+    if os.getenv('FLASK_ENV') == 'development':
         CORS(app, supports_credentials=True)
 
     if test_config is None:
@@ -26,19 +34,16 @@ def create_app(test_config=None):
     except OSError:
         pass
 
-    from . import db
-    db.init_app(app)
+    from . import database
+    database.init_app(app)
 
-    from . import auth
-    app.register_blueprint(auth.bp)
+    from .blueprints import auth_bp
+    app.register_blueprint(auth_bp)
 
-    from . import assistant
-    app.register_blueprint(assistant.bp)
+    from .blueprints import user_bp
+    app.register_blueprint(user_bp)
 
-    from . import user
-    app.register_blueprint(user.bp)
-
-    from . import vocabulary
-    app.register_blueprint(vocabulary.bp)
+    from .blueprints import vocabulary_bp
+    app.register_blueprint(vocabulary_bp)
 
     return app

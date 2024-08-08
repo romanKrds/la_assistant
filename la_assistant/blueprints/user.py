@@ -1,5 +1,5 @@
 from flask import Blueprint, g
-from la_assistant.auth import login_required
+from .auth import login_required
 
 bp = Blueprint('user', __name__, url_prefix='/user')
 
@@ -13,6 +13,6 @@ def get_user_info():
         return {"error": "User not found"}, 404
 
     return {
-        "id": user["id"],
-        "username": user["username"]
+        "id": user.id,
+        "username": user.username
     }, 200

@@ -1,40 +1,39 @@
-import os
-import tempfile
-
 import pytest
 from la_assistant import create_app
-from la_assistant.db import get_db, init_db
-
-with open(os.path.join(os.path.dirname(__file__), 'data.sql'), 'rb') as f:
-    _data_sql = f.read().decode('utf8')
+from la_assistant.extensions import db as _db
+from data import populate_users, populate_user_vocabulary, populate_vocabulary
 
 
 @pytest.fixture
 def app():
-    db_fd, db_path = tempfile.mkstemp()
-
     app = create_app({
-        'TESTING': True,
-        'DATABASE': db_path,
+        "TESTING": True,
+        "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:",  # using in-memory SQLite for tests
+        "SQLALCHEMY_TRACK_MODIFICATIONS": False
     })
 
+    # create the database and load test data
     with app.app_context():
-        init_db()
-        get_db().executescript(_data_sql)
+        _db.create_all()
+        populate_users(_db)
+        populate_user_vocabulary(_db)
+        populate_vocabulary(_db)
 
     yield app
 
-    os.close(db_fd)
-    os.unlink(db_path)
+    with app.app_context():
+        _db.drop_all()
 
 
 @pytest.fixture
 def client(app):
+    """A test client for the app."""
     return app.test_client()
 
 
 @pytest.fixture
 def runner(app):
+    """A test runner for the app's Click commands."""
     return app.test_cli_runner()
 
 

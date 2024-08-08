@@ -1,22 +1,26 @@
-[project]
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
 name = "la_assistant"
 version = "0.0.2"
 description = "Foreign language acquisition assistant app"
-authors = [
-    {name = "Roman Kordas", email = "roman.kordas7@gmail.com"}
-]
+authors = ["Roman Kordas <roman.kordas7@gmail.com>"]
 
-[dependencies]
-flask = "3.0"
-python-dotenv = "1.0.0"
-openai = "1.7.0"
+[tool.poetry.dependencies]
+python = "^3.10"
+flask = "^3.0"
+flask_sqlalchemy = "^3.1.1"
+PyMySQL = "^1.1"
+Flask-Migrate = "^4.0.7"
+python-dotenv = "^1.0.0"
+openai = "^1.7.0"
+flask-cors = "^4.0.1"
 
-[project.optional-dependencies]
-test = ["pytest", "pytest-mock"]
-
-[build-system]
-requires = ["flit_core<4"]
-build-backend = "flit_core.buildapi"
+[tool.poetry.dev-dependencies]
+pytest = "*"
+pytest-mock = "*"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
