@@ -77,13 +77,31 @@ flask db upgrade
 
 To run the application locally:
 
-1. **Activate the Virtual Environment:**
+1. **Install dependencies:**
+
+   ```bash
+   poetry install
+   ```
+
+2. **Activate the Virtual Environment:**
 
    ```bash
    poetry shell
    ```
 
-2. **Run the Application:**
+3. **Migrate DB:**
+
+   ```bash
+   flask db upgrade
+   ```
+
+4. **Populate DB with data:**
+
+   ```bash
+   flask --app la_assistant populate-db
+   ```
+
+5. **Run the Application:**
 
    ```bash
    flask run
